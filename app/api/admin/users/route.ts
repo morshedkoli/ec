@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../../../lib/prisma";
 import { hash } from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,7 +55,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
-    // Validate required fields
     if (!body.email || !body.password || !body.fullName) {
       return NextResponse.json(
         { error: "Email, password, and full name are required" },
@@ -65,7 +62,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -77,10 +73,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const hashedPassword = await hash(body.password, 12);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         email: body.email,

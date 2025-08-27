@@ -1,10 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../lib/prisma";
 import { compare } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
-
-const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,7 +23,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.fullName,
           role: user.role,
-        };
+        } as any;
       },
     }),
     FacebookProvider({
@@ -37,7 +35,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           role: "user",
-        };
+        } as any;
       },
     }),
   ],
@@ -47,15 +45,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        (token as any).id = (user as any).id;
+        (token as any).role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        (session.user as any).id = (token as any).id as string;
+        (session.user as any).role = (token as any).role as string;
       }
       return session;
     },
