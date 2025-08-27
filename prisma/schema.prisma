@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
+  email                    String   @unique
+  password                 String
+  fullName                 String
+  fatherName               String
+  educationalQualification String
+  profession               String
+  village                  String
+  union                    String
+  upazila                  String
+  district                 String
+  electionSeatNo           String
+  phoneNumber              String
+  favoriteParty            String
+  facebookId               String?
+  role                     String   @default("user")
+  isActive                 Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  messages                 Message[] @relation("UserMessages")
+}
+
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String
+  senderRole String
+  content    String
+  timestamp  DateTime @default(now())
+  readBy     String[]
+  user       User?    @relation(fields: [senderId], references: [id], name: "UserMessages")
+}
